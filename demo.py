@@ -29,7 +29,13 @@ cloudwatch_mcp_server = MCPServerStdio(
     params={
         "command": "uvx",
         "args": ["awslabs.cloudwatch-mcp-server@latest"],
-        "env": {"AWS_PROFILE": "temp", "FASTMCP_LOG_LEVEL": "ERROR"},
+        "env": {
+            "AWS_REGION": "us-east-1",
+            "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID", ""),
+            "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY", ""),
+            "AWS_SESSION_TOKEN": os.getenv("AWS_SESSION_TOKEN", ""),
+            "FASTMCP_LOG_LEVEL": "ERROR",
+        },
     },
 )
 cloudwatch_agent = Agent(
