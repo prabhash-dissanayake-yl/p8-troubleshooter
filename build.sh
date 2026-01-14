@@ -15,7 +15,7 @@ else
   uv pip install --force-reinstall --find-links ../../../ak-py/dist agentkernel[cli,openai,test] || true
 fi
 
-KA_REPO="https://github.com/yaala-internal/p8-knowledge-agent.git"
+KA_REPO="https://x-access-token:${GITHUB_TOKEN}@github.com/yaala-internal/p8-knowledge-agent.git"
 KA_BRANCH="feature/add-unified-retrieval-framework"
 KA_TMP_DIR="$(mktemp -d)/p8-knowledge-agent"
 if command -v git >/dev/null 2>&1; then
