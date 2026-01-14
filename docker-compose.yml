@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  app:
+    network_mode: "host"
+    build:
+      context: .
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
+    env_file:
+      - .env
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./lightrag_storage:/app/lightrag_storage
+    restart: unless-stopped
