@@ -10,20 +10,6 @@ from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed  # type: igno
 from pydantic import BaseModel
 from unified_retrieval.core.retriever import UnifiedRetriever
 
-math_agent = Agent(
-    name="math",
-    handoff_description="Specialist agent for math questions",
-    instructions="You provide help with math problems. Give short and direct answers exactly to the question. "
-    "Don't provide any explanations nor additional details.",
-)
-
-general_agent = Agent(
-    name="general",
-    handoff_description="Agent for general questions",
-    instructions="You provide assistance with general queries. Give short and direct answers exactly to the question. "
-    "Don't provide any explanations nor additional details",
-)
-
 cloudwatch_mcp_server = MCPServerStdio(
     name="AWS CloudWatch MCP Server",
     params={
@@ -91,14 +77,14 @@ triage_agent = Agent(
     name="triage",
     instructions="You determine which agent to use based on the user's question. Give short and direct answers exactly to the question. "
     "Don't provide any explanations nor additional details",
-    handoffs=[general_agent, math_agent, cloudwatch_agent, retrieval_agent],
+    handoffs=[cloudwatch_agent, retrieval_agent],
 )
 
 
 async def main():
     await cloudwatch_mcp_server.connect()
 
-    OpenAIModule([triage_agent, math_agent, general_agent, cloudwatch_agent, retrieval_agent])
+    OpenAIModule([triage_agent, cloudwatch_agent, retrieval_agent])
 
     cli = CLI()
     await cli.run()
