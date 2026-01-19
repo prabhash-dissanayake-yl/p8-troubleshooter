@@ -20,7 +20,7 @@ KA_BRANCH="feature/add-unified-retrieval-framework"
 KA_TMP_DIR="$(mktemp -d)/p8-knowledge-agent"
 if command -v git >/dev/null 2>&1; then
     if git clone --depth=1 --branch "$KA_BRANCH" "$KA_REPO" "$KA_TMP_DIR"; then
-        uv pip install --force-reinstall -e "${KA_TMP_DIR}[all]" || true
+        uv pip install --force-reinstall "${KA_TMP_DIR}[all]"
         rm -rf "$KA_TMP_DIR"
     else
         echo "Warning: failed to clone $KA_REPO (branch: $KA_BRANCH)"
