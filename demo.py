@@ -2,7 +2,7 @@ import asyncio
 import os
 from typing import Any, Dict
 
-from agentkernel.cli import CLI
+from agentkernel.api import RESTAPI
 from agentkernel.openai import OpenAIModule
 from agents import Agent, function_tool
 from agents.mcp import MCPServerStdio
@@ -92,8 +92,7 @@ async def main():
 
     OpenAIModule([triage_agent, cloudwatch_agent, retrieval_agent])
 
-    cli = CLI()
-    await cli.run()
+    RESTAPI.run()
 
 
 if __name__ == "__main__":
