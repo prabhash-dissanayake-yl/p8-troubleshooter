@@ -24,11 +24,6 @@ cloudwatch_mcp_server = MCPServerStdio(
         },
     },
 )
-cloudwatch_agent = Agent(
-    name="cloudwatch",
-    instructions="You assist with AWS CloudWatch related queries.",
-    mcp_servers=[cloudwatch_mcp_server],
-)
 
 
 class RetrievalArgs(BaseModel):
@@ -72,25 +67,38 @@ lightrag_retrieval_tool = function_tool(
     description_override="LightRAG adapter for graph-based retrieval",
     strict_mode=True,
 )
-retrieval_agent = Agent(
-    name="retrieval",
-    handoff_description="Agent for retrieval/search-related questions",
-    instructions="You provide assistance with retrieval and search queries. Don't ask any clarifying questions. Give short and direct answers exactly to the question.",
-    tools=[lightrag_retrieval_tool],
-)
 
-triage_agent = Agent(
-    name="triage",
-    instructions="You determine which agent to use based on the user's question. Give short and direct answers exactly to the question. "
-    "Don't provide any explanations nor additional details",
-    handoffs=[cloudwatch_agent, retrieval_agent],
-)
+
+def create_agents():
+    """Create and configure all agents."""
+    cloudwatch_agent = Agent(
+        name="cloudwatch",
+        instructions="You assist with AWS CloudWatch related queries.",
+        mcp_servers=[cloudwatch_mcp_server],
+    )
+
+    retrieval_agent = Agent(
+        name="retrieval",
+        handoff_description="Agent for retrieval/search-related questions",
+        instructions="You provide assistance with retrieval and search queries. Don't ask any clarifying questions. Give short and direct answers exactly to the question.",
+        tools=[lightrag_retrieval_tool],
+    )
+
+    triage_agent = Agent(
+        name="triage",
+        instructions="You determine which agent to use based on the user's question. Give short and direct answers exactly to the question. "
+        "Don't provide any explanations nor additional details",
+        handoffs=[cloudwatch_agent, retrieval_agent],
+    )
+
+    return [triage_agent, cloudwatch_agent, retrieval_agent]
 
 
 async def main():
+    """Setup and initialize the agent system."""
+    agents = create_agents()
     await cloudwatch_mcp_server.connect()
-
-    OpenAIModule([triage_agent, cloudwatch_agent, retrieval_agent])
+    OpenAIModule(agents)
 
     RESTAPI.run()
 
