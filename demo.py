@@ -98,10 +98,58 @@ def create_agents():
 async def main():
     """Setup and initialize the agent system."""
     agents = create_agents()
-    await cloudwatch_mcp_server.connect()
+
     OpenAIModule(agents)
 
-    RESTAPI.run()
+    import uvicorn
+    from agentkernel.api.handler import AgentRESTRequestHandler
+    from agentkernel.core.config import AKConfig
+
+    handlers = [AgentRESTRequestHandler()]
+    host = AKConfig.get().api.host
+    port = AKConfig.get().api.port
+
+    routers = []
+    for handler in handlers:
+        if handler is not None:
+            routers.append(handler.get_router())
+
+    if AKConfig.get().a2a.enabled:
+        from agentkernel.api.a2a.handler import A2ARESTRequestHandler
+
+        routers.append(A2ARESTRequestHandler.get_catalog_router())
+        routers.extend(A2ARESTRequestHandler.get_agent_routers())
+    if AKConfig.get().mcp.enabled:
+        from agentkernel.api.mcp.akmcp import MCP
+
+        mcp_app = MCP.get_http_app()
+        app = RESTAPI._create_app(routers=routers, lifespan=mcp_app.lifespan)
+        app.mount("/mcp", mcp_app)
+    else:
+        app = RESTAPI._create_app(routers=routers)
+    # Add any custom routers
+    for router in RESTAPI._custom_routers:
+        app.include_router(router, prefix=AKConfig.get().api.custom_router_prefix)
+
+    # Ensure MCP stdio servers start/stop inside the FastAPI lifespan
+    async def _mcp_startup():
+        try:
+            await cloudwatch_mcp_server.connect()
+        except Exception:
+            pass
+
+    async def _mcp_shutdown():
+        try:
+            await cloudwatch_mcp_server.cleanup()
+        except Exception:
+            pass
+
+    app.add_event_handler("startup", _mcp_startup)
+    app.add_event_handler("shutdown", _mcp_shutdown)
+
+    config = uvicorn.Config(app=app, host=host, port=port, reload=False)
+    server = uvicorn.Server(config=config)
+    await server.serve()
 
 
 if __name__ == "__main__":
