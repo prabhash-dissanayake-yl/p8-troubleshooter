@@ -23,6 +23,7 @@ cloudwatch_mcp_server = MCPServerStdio(
             "FASTMCP_LOG_LEVEL": "ERROR",
         },
     },
+    client_session_timeout_seconds=180,
 )
 
 
