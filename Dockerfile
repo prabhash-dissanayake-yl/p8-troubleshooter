@@ -14,6 +14,9 @@ COPY . /app
 # Upgrade pip, setuptools, and wheel, then install uv
 RUN pip install --upgrade pip setuptools wheel && pip install uv
 
+# Pre-install awslabs.cloudwatch-mcp-server tool
+RUN uv tool install awslabs.cloudwatch-mcp-server@latest
+
 ARG GITHUB_TOKEN
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
 

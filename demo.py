@@ -13,8 +13,8 @@ from unified_retrieval.core.retriever import UnifiedRetriever
 cloudwatch_mcp_server = MCPServerStdio(
     name="AWS CloudWatch MCP Server",
     params={
-        "command": "uvx",
-        "args": ["awslabs.cloudwatch-mcp-server@latest"],
+        "command": "/root/.local/bin/awslabs.cloudwatch-mcp-server",
+        "args": [],
         "env": {
             "AWS_REGION": "us-east-1",
             "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID", ""),
